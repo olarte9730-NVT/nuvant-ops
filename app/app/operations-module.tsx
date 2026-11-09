@@ -28,6 +28,8 @@ export default function OperationsModule({ moduleKey }: { moduleKey: string }) {
   const config = modules[moduleKey];
   const supabase = useMemo(() => createClient(), []);
   const [rows,setRows] = useState<any[]>([]);
+  const [inventorySnapshots,setInventorySnapshots] = useState<any[]>([]);
+  const [selectedSnapshot,setSelectedSnapshot] = useState("");
   const [permission,setPermission] = useState<any>(null);
   const [userId,setUserId] = useState<string>("");
   const [loading,setLoading] = useState(true);
@@ -67,6 +69,7 @@ export default function OperationsModule({ moduleKey }: { moduleKey: string }) {
           const cutoffBySnapshot = new Map((snapshots??[]).map((s:any)=>[s.id,s.cutoff_date]));
           const inventoryRows = (items??[]).map((r:any)=>({...r,cutoff_date:cutoffBySnapshot.get(r.snapshot_id)??null}));
           inventoryRows.sort((a:any,b:any)=>String(b.cutoff_date??"").localeCompare(String(a.cutoff_date??"")));
+          setInventorySnapshots(snapshots??[]);
           setRows(inventoryRows);
         }
       } else {
@@ -112,7 +115,7 @@ export default function OperationsModule({ moduleKey }: { moduleKey: string }) {
     const {error:e}=await supabase.from("notifications").update({read_at:new Date().toISOString()}).eq("id",id).eq("user_id",userId);
     if(e)setError(e.message);else await load();
   }
-  const filtered=rows.filter(r=>JSON.stringify(r).toLowerCase().includes(search.toLowerCase()));
+  const filtered=rows.filter(r=>(moduleKey!=="inventarios" || !selectedSnapshot || r.snapshot_id===selectedSnapshot) && JSON.stringify(r).toLowerCase().includes(search.toLowerCase()));
   function exportCsv(){
     if(!filtered.length)return;
     const cols=Object.keys(filtered[0]);const csv=[cols.join(","),...filtered.map(r=>cols.map(c=>JSON.stringify(r[c]??"")).join(","))].join("\n");
@@ -130,7 +133,7 @@ export default function OperationsModule({ moduleKey }: { moduleKey: string }) {
       {moduleKey==="inventarios"&&<InventoryImport canImport={!!permission?.can_import && !!permission?.can_create} onImported={load} />}
       {canCreate&&<section className="panel" style={{marginBottom:22}}><h3>Nuevo registro</h3><form onSubmit={submit} className="ops-form">{config.fields.map(f=><label key={f.name}>{f.label}{f.required?" *":""}{f.options?<select name={f.name} required={f.required} defaultValue={f.options[0]}>{f.options.map(o=><option key={o} value={o}>{labels[o]??o}</option>)}</select>:<input name={f.name} type={f.type??"text"} required={f.required} step={f.type==="number"?"0.001":undefined} min={f.type==="number"?"0":undefined}/>}</label>)}<button className="btn-primary" disabled={saving}>{saving?"Guardando...":"Guardar registro"}</button></form></section>}
       {moduleKey==="reportes"&&<section className="metrics-grid" style={{marginBottom:22}}>{rows.map(r=><article className="metric-card" key={r.kind}><div className="metric-label">{r.kind}</div><div className="metric-value">{r.count}</div><div className="metric-unit">registros</div><div className="metric-note">Cantidad total: {Number(r.quantity).toLocaleString("es-CO")}</div></article>)}</section>}
-      <section className="panel"><div className="section-heading"><div><h3>{moduleKey==="reportes"?"Resumen de reportes":moduleKey==="administracion"?"Permisos asignados":"Registros"}</h3><p>Consulta la información disponible en la base de datos.</p></div><div style={{display:"flex",gap:8}}><input className="search-input" placeholder="Buscar..." value={search} onChange={e=>setSearch(e.target.value)}/>{permission?.can_export&&<button className="btn-secondary" onClick={exportCsv}>Exportar CSV</button>}</div></div>
+      <section className="panel"><div className="section-heading"><div><h3>{moduleKey==="reportes"?"Resumen de reportes":moduleKey==="administracion"?"Permisos asignados":"Registros"}</h3><p>{moduleKey==="inventarios"?"Filtra por fecha de corte y busca por código, descripción, bodega o lote. Los cortes anteriores se mantienen disponibles.":"Consulta la información disponible en la base de datos."}</p></div><div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{moduleKey==="inventarios"&&<select aria-label="Filtrar por corte de inventario" value={selectedSnapshot} onChange={e=>setSelectedSnapshot(e.target.value)}><option value="">Todos los cortes</option>{inventorySnapshots.map(s=><option key={s.id} value={s.id}>{s.cutoff_date}</option>)}</select>}<input className="search-input" placeholder={moduleKey==="inventarios"?"Buscar producto, bodega o lote...":"Buscar..."} value={search} onChange={e=>setSearch(e.target.value)}/>{permission?.can_export&&<button className="btn-secondary" onClick={exportCsv}>Exportar CSV</button>}</div></div>
         {loading?<p>Cargando información...</p>:filtered.length===0?<p>No hay registros para mostrar.</p>:moduleKey==="notificaciones"?<div className="record-list">{filtered.map(r=><article className="record-row" key={r.id}><div><strong>{r.title}</strong><p>{r.message}</p><small>{new Date(r.created_at).toLocaleString("es-CO")}</small></div>{!r.read_at&&<button className="btn-secondary" onClick={()=>markRead(r.id)}>Marcar leída</button>}</article>)}</div>:<div className="table-scroll"><table className="ops-table"><thead><tr>{(moduleKey==="reportes"?["kind","count","quantity"]:config.columns).map(c=><th key={c}>{c.replaceAll("_"," ")}</th>)}</tr></thead><tbody>{filtered.map((r,i)=><tr key={r.id??i}>{(moduleKey==="reportes"?["kind","count","quantity"]:config.columns).map(c=><td key={c}>{labels[String(r[c])]??(r[c]===null||r[c]===undefined?"—":typeof r[c]==="object"?JSON.stringify(r[c]):String(r[c]))}</td>)}</tr>)}</tbody></table></div>}
       </section>
       {moduleKey==="administracion"&&<p className="muted-note">Los permisos se consultan desde la configuración individual de tu cuenta. La edición de permisos requiere políticas de administración seguras; no se habilita desde el navegador en esta versión.</p>}

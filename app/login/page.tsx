@@ -2,7 +2,7 @@ import { signIn } from "./actions";
 export default async function Login({searchParams}:{searchParams:Promise<{error?:string}>}) {
  const {error}=await searchParams;
  return <main className="wrap"><section className="panel form">
- <div className="brand">NUVANT <span className="muted">OPS</span></div>
+ <div className="login-brand"><img src="https://yt3.googleusercontent.com/WqRUC__73xXuDipIeZN9x1xpCiob-s6Viv7AxOIc4fOb1DsP1P_YKsmQQyy7wojPk9UDMrby=s900-c-k-c0x00ffffff-no-rj" alt="Logo Nuvant" /><span>OPS</span></div>
  <h1>Iniciar sesión</h1><p className="muted">Herramienta de planeación y control de producto terminado.</p>
  {error==="domain" && <p className="error">Solo se permiten correos @nuvantglobal.com.</p>}
  {error==="credentials" && <p className="error">No fue posible iniciar sesión. Verifica tus credenciales.</p>}

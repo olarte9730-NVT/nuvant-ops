@@ -44,7 +44,7 @@ export default async function Dashboard() {
           {modules.map((item, index) => (
             <a
               key={item.id}
-              href={`#${item.id}`}
+              href={item.id === "productos" ? "/app/productos" : `#${item.id}`}
               className={index === 0 ? "nav-item active" : "nav-item"}
             >
               <span className="nav-icon">{item.icon}</span>

@@ -7,8 +7,8 @@ type Field = { name: string; label: string; type?: string; required?: boolean; o
 const modules: Record<string, { title: string; description: string; table: string; fields: Field[]; columns: string[] }> = {
   pedidos: { title: "Pedidos", description: "Registra pedidos y sus líneas de producto terminado.", table: "orders", fields: [
     {name:"order_number",label:"Número de pedido",required:true},{name:"source_customer_name",label:"Cliente",required:true},{name:"source_customer_code",label:"Código cliente"},{name:"created_on",label:"Fecha de creación",type:"date"},{name:"source_product_code",label:"Código producto",required:true},{name:"source_product_description",label:"Descripción producto"},{name:"required_date",label:"Fecha requerida",type:"date",required:true},{name:"requested_quantity",label:"Cantidad solicitada",type:"number",required:true},{name:"unit",label:"Unidad",required:true},{name:"observations",label:"Observaciones"}], columns:["order_number","source_customer_name","source_product_code","required_date","requested_quantity","status"] },
-  inventarios: { title: "Inventarios", description: "Registra cortes de inventario de producto terminado. Cada carga conserva su fecha de corte.", table: "inventory_snapshots", fields: [
-    {name:"cutoff_date",label:"Fecha de corte",type:"date",required:true},{name:"source_product_code",label:"Código producto",required:true},{name:"source_product_description",label:"Descripción"},{name:"available_quantity",label:"Cantidad disponible",type:"number",required:true},{name:"unit",label:"Unidad",required:true},{name:"warehouse_location",label:"Bodega / ubicación"},{name:"lot",label:"Lote"},{name:"observations",label:"Observaciones"}], columns:["cutoff_date","source_product_code","available_quantity","unit","source_file_name"] },
+  inventarios: { title: "Inventarios", description: "Registra cortes de inventario de producto terminado. Cada carga conserva su fecha de corte.", table: "inventory_items", fields: [
+    {name:"cutoff_date",label:"Fecha de corte",type:"date",required:true},{name:"source_product_code",label:"Código producto",required:true},{name:"source_product_description",label:"Descripción"},{name:"available_quantity",label:"Cantidad disponible",type:"number",required:true},{name:"unit",label:"Unidad",required:true},{name:"warehouse_location",label:"Bodega / ubicación"},{name:"lot",label:"Lote"},{name:"observations",label:"Observaciones"}], columns:["cutoff_date","source_product_code","source_product_description","available_quantity","unit","warehouse_location","lot"] },
   planeacion: { title: "Planeación y programación", description: "Programa producto terminado por producto, fecha y cantidad. La priorización es manual.", table: "production_schedules", fields: [
     {name:"product_code",label:"Código producto",required:true},{name:"product_description",label:"Descripción"},{name:"planned_date",label:"Fecha programada",type:"date",required:true},{name:"planned_quantity",label:"Cantidad programada",type:"number",required:true},{name:"unit",label:"Unidad",required:true},{name:"priority",label:"Prioridad",options:["low","normal","high","critical"]},{name:"observations",label:"Observaciones"}], columns:["planned_date","product_code","product_description","planned_quantity","unit","priority","status"] },
   produccion: { title: "Seguimiento de producción", description: "Registra producción real diaria por producto, incluyendo cantidad no conforme.", table: "production_actuals", fields: [
@@ -55,11 +55,17 @@ export default function OperationsModule({ moduleKey }: { moduleKey: string }) {
       if (s.error || a.error || o.error || n.error) setError("Error al construir reportes. Revisa los permisos de los módulos operativos.");
       setRows([{kind:"Programación",count:s.data?.length??0,quantity:(s.data??[]).reduce((x:any,r:any)=>x+Number(r.planned_quantity||0),0)},{kind:"Producción real",count:a.data?.length??0,quantity:(a.data??[]).reduce((x:any,r:any)=>x+Number(r.produced_quantity||0),0)},{kind:"Líneas de pedido",count:o.data?.length??0,quantity:(o.data??[]).reduce((x:any,r:any)=>x+Number(r.requested_quantity||0),0)},{kind:"Incumplimientos",count:n.data?.length??0,quantity:(n.data??[]).reduce((x:any,r:any)=>x+Number(r.affected_quantity||0),0)}]);
     } else {
-      let q = supabase.from(config.table).select("*").order("created_at",{ascending:false}).limit(300);
-      if (moduleKey==="notificaciones") q = supabase.from(config.table).select("*").order("created_at",{ascending:false}).limit(300);
+      let q: any;
+      if (moduleKey==="inventarios") {
+        q = supabase.from("inventory_items").select("*, inventory_snapshots!inner(cutoff_date)").order("cutoff_date",{foreignTable:"inventory_snapshots",ascending:false}).limit(300);
+      } else if (moduleKey==="notificaciones") {
+        q = supabase.from(config.table).select("*").order("created_at",{ascending:false}).limit(300);
+      } else {
+        q = supabase.from(config.table).select("*").order("created_at",{ascending:false}).limit(300);
+      }
       const {data,error: queryError} = await q;
       if (queryError) setError("No fue posible cargar la información: "+queryError.message);
-      else setRows(data??[]);
+      else setRows((data??[]).map((r:any)=>moduleKey==="inventarios"?{...r,cutoff_date:r.inventory_snapshots?.cutoff_date??null}:r));
     }
     setLoading(false);
   },[config.table,moduleKey,supabase]);

@@ -203,8 +203,8 @@ export default function ProductCatalog() {
     <main className="ops-shell">
       <aside className="sidebar">
         <div className="brand">
-          <div className="brand-mark">N</div>
-          <div><strong>NUVANT <span>OPS</span></strong><small>OPERATIONS MANAGEMENT</small></div>
+          <div className="brand-logo-wrap"><img src="https://yt3.googleusercontent.com/WqRUC__73xXuDipIeZN9x1xpCiob-s6Viv7AxOIc4fOb1DsP1P_YKsmQQyy7wojPk9UDMrby=s900-c-k-c0x00ffffff-no-rj" alt="Logo Nuvant" /></div>
+          <div className="brand-wordmark"><strong>OPS</strong><small>OPERATIONS MANAGEMENT</small></div>
         </div>
         <div className="nav-label">ESPACIO DE TRABAJO</div>
         <nav className="navigation">

@@ -46,14 +46,23 @@ export default function ProductCatalog() {
   const loadData = useCallback(async () => {
     setLoading(true);
     setError("");
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !authData.user) {
+      setError("No se pudo validar tu sesión. Cierra sesión e ingresa nuevamente." + (authError?.message ? " Detalle: " + authError.message : ""));
+      setLoading(false);
+      return;
+    }
+
     const { data: permission, error: permissionError } = await supabase
       .from("module_permissions")
       .select("can_view,can_create,can_edit,can_delete")
+      .eq("user_id", authData.user.id)
       .eq("module_key", "productos")
       .maybeSingle();
 
     if (permissionError) {
-      setError("No fue posible consultar tus permisos. Verifica la conexión y las políticas de seguridad.");
+      setError("No fue posible consultar tus permisos. Detalle técnico: " + permissionError.message);
       setLoading(false);
       return;
     }

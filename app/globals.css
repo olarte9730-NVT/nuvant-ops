@@ -131,3 +131,15 @@ body{background:var(--ops-bg);color:var(--ops-text);font-family:Inter,Arial,Helv
  .search-input{min-width:0;width:100%}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
+
+/* Logo oficial Nuvant */
+.brand-logo-wrap{width:100%;height:76px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:8px;overflow:hidden}
+.brand-logo-wrap img{display:block;width:100%;height:100%;object-fit:contain}
+.brand-wordmark{display:flex;flex-direction:column;gap:5px}
+.brand-wordmark strong{font-size:20px;letter-spacing:2px;color:#f18a43}
+.brand-wordmark small{font-size:8px;letter-spacing:1.1px;color:#91a2b4}
+.sidebar .brand{align-items:center;gap:10px}
+.login-brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px}
+.login-brand img{width:180px;height:76px;object-fit:contain;background:#fff;border-radius:10px}
+.login-brand span{font-size:20px;font-weight:900;letter-spacing:2px;color:#ed792e}
+@media(max-width:700px){.brand-logo-wrap{width:120px;height:56px}.brand-wordmark strong{font-size:16px}.brand-wordmark small{font-size:7px}}

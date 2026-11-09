@@ -55,17 +55,24 @@ export default function OperationsModule({ moduleKey }: { moduleKey: string }) {
       if (s.error || a.error || o.error || n.error) setError("Error al construir reportes. Revisa los permisos de los módulos operativos.");
       setRows([{kind:"Programación",count:s.data?.length??0,quantity:(s.data??[]).reduce((x:any,r:any)=>x+Number(r.planned_quantity||0),0)},{kind:"Producción real",count:a.data?.length??0,quantity:(a.data??[]).reduce((x:any,r:any)=>x+Number(r.produced_quantity||0),0)},{kind:"Líneas de pedido",count:o.data?.length??0,quantity:(o.data??[]).reduce((x:any,r:any)=>x+Number(r.requested_quantity||0),0)},{kind:"Incumplimientos",count:n.data?.length??0,quantity:(n.data??[]).reduce((x:any,r:any)=>x+Number(r.affected_quantity||0),0)}]);
     } else {
-      let q: any;
       if (moduleKey==="inventarios") {
-        q = supabase.from("inventory_items").select("*, inventory_snapshots!inner(cutoff_date)").order("cutoff_date",{foreignTable:"inventory_snapshots",ascending:false}).limit(300);
-      } else if (moduleKey==="notificaciones") {
-        q = supabase.from(config.table).select("*").order("created_at",{ascending:false}).limit(300);
+        const [{data:items,error:itemError},{data:snapshots,error:snapshotError}] = await Promise.all([
+          supabase.from("inventory_items").select("*").limit(300),
+          supabase.from("inventory_snapshots").select("id,cutoff_date").order("cutoff_date",{ascending:false}).limit(300)
+        ]);
+        if (itemError || snapshotError) {
+          setError("No fue posible cargar la información: "+(itemError?.message??snapshotError?.message));
+        } else {
+          const cutoffBySnapshot = new Map((snapshots??[]).map((s:any)=>[s.id,s.cutoff_date]));
+          const inventoryRows = (items??[]).map((r:any)=>({...r,cutoff_date:cutoffBySnapshot.get(r.snapshot_id)??null}));
+          inventoryRows.sort((a:any,b:any)=>String(b.cutoff_date??"").localeCompare(String(a.cutoff_date??"")));
+          setRows(inventoryRows);
+        }
       } else {
-        q = supabase.from(config.table).select("*").order("created_at",{ascending:false}).limit(300);
+        const {data,error: queryError} = await supabase.from(config.table).select("*").order("created_at",{ascending:false}).limit(300);
+        if (queryError) setError("No fue posible cargar la información: "+queryError.message);
+        else setRows(data??[]);
       }
-      const {data,error: queryError} = await q;
-      if (queryError) setError("No fue posible cargar la información: "+queryError.message);
-      else setRows((data??[]).map((r:any)=>moduleKey==="inventarios"?{...r,cutoff_date:r.inventory_snapshots?.cutoff_date??null}:r));
     }
     setLoading(false);
   },[config.table,moduleKey,supabase]);

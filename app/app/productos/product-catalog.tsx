@@ -209,17 +209,17 @@ export default function ProductCatalog() {
         <div className="nav-label">ESPACIO DE TRABAJO</div>
         <nav className="navigation">
           <a className="nav-item" href="/app"><span className="nav-icon">▦</span><span>Panel principal</span></a>
-          <a className="nav-item" href="/app#pedidos"><span className="nav-icon">▤</span><span>Pedidos</span></a>
+          <a className="nav-item" href="/app/pedidos"><span className="nav-icon">▤</span><span>Pedidos</span></a>
           <a className="nav-item active" href="/app/productos"><span className="nav-icon">◈</span><span>Catálogo de productos</span></a>
-          <a className="nav-item" href="/app#inventarios"><span className="nav-icon">▥</span><span>Inventarios</span></a>
-          <a className="nav-item" href="/app#planeacion"><span className="nav-icon">▦</span><span>Planeación y programación</span></a>
-          <a className="nav-item" href="/app#produccion"><span className="nav-icon">⚙</span><span>Seguimiento de producción</span></a>
-          <a className="nav-item" href="/app#incumplimientos"><span className="nav-icon">◷</span><span>Incumplimientos y reprogramaciones</span></a>
-          <a className="nav-item" href="/app#reportes"><span className="nav-icon">▧</span><span>Reportes</span></a>
-          <a className="nav-item" href="/app#notificaciones"><span className="nav-icon">♧</span><span>Notificaciones</span></a>
-          <a className="nav-item" href="/app#administracion"><span className="nav-icon">⚑</span><span>Administración y permisos</span></a>
+          <a className="nav-item" href="/app/inventarios"><span className="nav-icon">▥</span><span>Inventarios</span></a>
+          <a className="nav-item" href="/app/planeacion"><span className="nav-icon">▦</span><span>Planeación y programación</span></a>
+          <a className="nav-item" href="/app/produccion"><span className="nav-icon">⚙</span><span>Seguimiento de producción</span></a>
+          <a className="nav-item" href="/app/incumplimientos"><span className="nav-icon">◷</span><span>Incumplimientos y reprogramaciones</span></a>
+          <a className="nav-item" href="/app/reportes"><span className="nav-icon">▧</span><span>Reportes</span></a>
+          <a className="nav-item" href="/app/notificaciones"><span className="nav-icon">♧</span><span>Notificaciones</span></a>
+          <a className="nav-item" href="/app/administracion"><span className="nav-icon">⚑</span><span>Administración y permisos</span></a>
         </nav>
-        <div className="sidebar-bottom"><div className="system-status"><span /> Sistema conectado</div><small>NUVANT OPS · VERSIÓN 1.0</small></div>
+        <div className="sidebar-bottom"><div className="system-status"><span /> Sistema conectado</div><small>NUVANT OPS · VERSIÓN 1.2</small></div>
       </aside>
 
       <section className="main-area">

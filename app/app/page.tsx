@@ -55,7 +55,7 @@ export default async function Dashboard() {
     can("planeacion") ? supabase.from("production_schedules").select("planned_date,planned_quantity,status").order("planned_date", {ascending:false}).limit(1000) : Promise.resolve({data:[],error:null} as any),
     can("produccion") ? supabase.from("production_actuals").select("production_date,produced_quantity,rejected_quantity").order("production_date", {ascending:false}).limit(1000) : Promise.resolve({data:[],error:null} as any),
     can("pedidos") ? supabase.from("order_lines").select("id,order_id,required_date,requested_quantity,status").limit(1000) : Promise.resolve({data:[],error:null} as any),
-    can("inventarios") ? supabase.from("inventory_items").select("available_quantity,snapshot_id").limit(2000) : Promise.resolve({data:[],error:null} as any),
+    can("inventarios") ? (async () => { const {data:snapshot,error:snapshotError} = await supabase.from("inventory_snapshots").select("id,cutoff_date").order("cutoff_date",{ascending:false}).limit(1).maybeSingle(); if (snapshotError) return {data:[],error:snapshotError}; if (!snapshot) return {data:[],error:null}; return await supabase.from("inventory_items").select("available_quantity,snapshot_id").eq("snapshot_id",snapshot.id).limit(2000); })() : Promise.resolve({data:[],error:null} as any),
     can("incumplimientos") ? supabase.from("noncompliance_events").select("affected_date,affected_quantity").order("affected_date",{ascending:false}).limit(1000) : Promise.resolve({data:[],error:null} as any)
   ]);
 
@@ -69,6 +69,7 @@ export default async function Dashboard() {
   const inventoryTotal = inventory.reduce((sum:number,r:any)=>sum+Number(r.available_quantity||0),0);
   const rejectedTotal = actuals.reduce((sum:number,r:any)=>sum+Number(r.rejected_quantity||0),0);
   const orderTotal = orders.reduce((sum:number,r:any)=>sum+Number(r.requested_quantity||0),0);
+  const distinctOrders = new Set(orders.map((r:any)=>r.order_id).filter(Boolean)).size;
   const fulfilled = orders.filter((r:any)=>["fulfilled","fully_produced","attended","atendido"].includes(String(r.status||"").toLowerCase())).length;
   const pending = Math.max(0, orders.length - fulfilled);
   const days = Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return d.toISOString().slice(0,10);});
@@ -87,7 +88,7 @@ export default async function Dashboard() {
         <div className="section-heading"><div><h2>Indicadores de operación</h2><p>Información consultada desde los registros disponibles en tu cuenta.</p></div><span className="module-count">DATOS EN VIVO</span></div>
         {hasErrors && <div className="notice-error">Algunos indicadores no pudieron consultarse por permisos o disponibilidad de datos. Los valores visibles corresponden únicamente a consultas exitosas.</div>}
         <section className="metrics-grid">
-          <article className="metric-card"><div className="metric-label">Pedidos registrados</div><div className="metric-value">{number(orders.length)}</div><div className="metric-note">Cantidad solicitada: {number(orderTotal)}</div></article>
+          <article className="metric-card"><div className="metric-label">Pedidos registrados</div><div className="metric-value">{number(distinctOrders)}</div><div className="metric-note">Cantidad solicitada: {number(orderTotal)}</div></article>
           <article className="metric-card"><div className="metric-label">Inventario disponible</div><div className="metric-value">{number(inventoryTotal)}</div><div className="metric-note">Suma de existencias consultadas</div></article>
           <article className="metric-card"><div className="metric-label">Producción real</div><div className="metric-value">{number(actualTotal)}</div><div className="metric-note">Rechazado: {number(rejectedTotal)}</div></article>
           <article className="metric-card"><div className="metric-label">Programación</div><div className="metric-value">{number(plannedTotal)}</div><div className="metric-note">Cantidad programada total</div></article>

@@ -143,3 +143,42 @@ body{background:var(--ops-bg);color:var(--ops-text);font-family:Inter,Arial,Helv
 .login-brand img{width:180px;height:76px;object-fit:contain;background:#fff;border-radius:10px}
 .login-brand span{font-size:20px;font-weight:900;letter-spacing:2px;color:#ed792e}
 @media(max-width:700px){.brand-logo-wrap{width:120px;height:56px}.brand-wordmark strong{font-size:16px}.brand-wordmark small{font-size:7px}}
+
+
+/* Dashboard ejecutivo con datos consultados desde Supabase */
+.dashboard-charts{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:16px;margin-top:16px}
+.chart-card{background:#fff;border:1px solid var(--ops-line);border-radius:12px;padding:20px;box-shadow:0 3px 12px rgba(20,37,54,.035);min-width:0}
+.chart-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.chart-heading h3{margin:0;color:var(--ops-blue);font-size:14px}
+.chart-heading p{margin:5px 0 0;color:var(--ops-muted);font-size:11px}
+.chart-heading>a{font-size:11px;color:#c86c2c;text-decoration:none;font-weight:700;white-space:nowrap}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;color:#718096;font-size:10px}
+.chart-legend span,.donut-legend span{display:flex;align-items:center;gap:6px}
+.chart-legend i,.donut-legend i{width:8px;height:8px;border-radius:3px;display:inline-block}
+.legend-planned{background:#aab8c5}.legend-actual{background:#ed792e}.legend-fulfilled{background:#ed792e}.legend-pending{background:#dfe6ec}
+.bar-chart{height:190px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;align-items:end;border-bottom:1px solid #e8edf1;padding:8px 4px 0}
+.bar-group{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
+.bar-pair{height:160px;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:5px}
+.bar-track{height:100%;width:min(24px,40%);display:flex;align-items:flex-end;background:#f5f7f9;border-radius:5px 5px 0 0;overflow:hidden}
+.bar{width:100%;border-radius:5px 5px 0 0;min-height:0}
+.bar.planned{background:#aab8c5}.bar.actual{background:#ed792e}
+.bar-group small{font-size:10px;color:#82909e}
+.chart-foot{display:flex;justify-content:space-between;gap:12px;margin-top:14px;color:#82909e;font-size:10px}
+.chart-foot strong{display:block;color:#263747;font-size:13px;margin-top:4px}
+.donut-layout{display:flex;align-items:center;justify-content:center;gap:22px;min-height:180px}
+.donut{width:148px;height:148px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+.donut>div{width:108px;height:108px;background:#fff;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut strong{font-size:27px;color:#1b344b}.donut small{font-size:10px;color:#82909e;margin-top:3px}
+.donut-legend{display:flex;flex-direction:column;gap:15px;color:#718096;font-size:11px}
+.donut-legend b{display:block;color:#263747;font-size:15px;margin-left:14px}
+.empty-chart{font-size:11px;color:#98a4af;line-height:1.5;margin:10px 0 0}
+.dashboard-lower{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.alert-list{display:flex;flex-direction:column}
+.alert-row{display:flex;align-items:center;gap:10px;padding:13px 0;border-top:1px solid #edf1f4}
+.alert-dot{width:8px;height:8px;border-radius:50%;background:#ed792e;flex-shrink:0}
+.alert-row strong,.alert-row small{display:block}.alert-row strong{font-size:11px;color:#344657}.alert-row small{font-size:10px;color:#82909e;margin-top:4px}
+.quick-links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quick-links a{display:flex;align-items:center;gap:8px;padding:11px;border:1px solid #edf0f3;border-radius:8px;text-decoration:none;color:#344657;font-size:10px;min-width:0}
+.quick-links a span{font-size:15px;color:#e77d38}.quick-links a b{margin-left:auto;color:#e77d38}
+@media(max-width:1050px){.dashboard-charts,.dashboard-lower{grid-template-columns:1fr}}
+@media(max-width:700px){.dashboard-charts,.dashboard-lower{grid-template-columns:1fr}.chart-card{padding:16px}.chart-heading{flex-direction:column}.bar-chart{gap:5px}.bar-pair{gap:3px}.chart-foot{font-size:9px}.donut-layout{gap:14px}.donut{width:125px;height:125px}.donut>div{width:92px;height:92px}.quick-links{grid-template-columns:1fr}}

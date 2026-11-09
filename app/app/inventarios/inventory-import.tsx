@@ -75,6 +75,12 @@ export default function InventoryImport({ canImport, onImported }: { canImport: 
           observations: String(get("observations") ?? "").trim() || null
         };
       });
+      const seen = new Set<string>();
+      parsed.forEach((row, index) => {
+        const key = [row.source_product_code, row.warehouse_location ?? "", row.lot ?? ""].join("|").toLowerCase();
+        if (seen.has(key)) problems.push("Fila " + (index + 2) + ": producto, bodega y lote duplicados dentro del archivo.");
+        seen.add(key);
+      });
       if (parsed.length > 1000) problems.push("El archivo supera el límite de 1.000 filas por carga. Divide el archivo y vuelve a intentarlo.");
       setIssues(problems);
       setRows(parsed);
